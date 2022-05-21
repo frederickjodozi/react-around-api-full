@@ -1,0 +1,33 @@
+{
+  "name": "react-around-api-full",
+  "version": "1.0.0",
+  "description": "Final project at Practicum",
+  "author": "Fred Jodozi",
+  "license": "ISC",
+  "main": "backend/app.js",
+  "scripts": {
+    "start": "node backend/app.js",
+    "dev": "nodemon backend/app.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint ."
+  },
+  "dependencies": {
+    "express": "^4.17.3",
+    "mongoose": "^6.2.7",
+    "validator": "^13.7.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.10.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-plugin-import": "^2.25.4",
+    "nodemon": "^2.0.15"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Fred776/around-express.git"
+  },
+  "homepage": "https://github.com/Fred776/around-express#readme",
+  "bugs": {
+    "url": "https://github.com/Fred776/around-express/issues"
+  }
+}
