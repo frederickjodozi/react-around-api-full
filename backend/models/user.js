@@ -2,17 +2,31 @@ const mongoose = require('mongoose');
 const validator = require('validator');
 
 const userSchema = new mongoose.Schema({
+  email: {
+    type: String,
+    validate: {
+      validator(email) {
+        return validator.isEmail(email);
+      },
+      message: 'A valid email adress is required',
+    },
+    required: true,
+  },
+  password: {
+    type: String,
+    required: true,
+  },
   name: {
     type: String,
     minlength: 2,
     maxlength: 30,
-    required: true,
+    default: 'Jacques Cousteau',
   },
   about: {
     type: String,
     minlength: 2,
     maxlength: 30,
-    required: true,
+    default: 'Explorer',
   },
   avatar: {
     type: String,
@@ -22,7 +36,7 @@ const userSchema = new mongoose.Schema({
       },
       message: 'The Avatar image must a valid URL',
     },
-    required: true,
+    default: 'https://pictures.s3.yandex.net/resources/avatar_1604080799.jpg',
   },
 });
 
