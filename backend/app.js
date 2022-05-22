@@ -1,6 +1,8 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const routes = require('./routes/index');
+const userLogin = require('./controllers/login');
+const createUser = require('./controllers/createUser');
 
 const { PORT = 3000 } = process.env;
 const app = express();
@@ -16,5 +18,10 @@ app.use((req, res, next) => {
   next();
 });
 
+app.post('/signin', userLogin);
+
+app.post('/signup', createUser);
+
 app.use(routes);
+
 app.listen(PORT, () => console.log(`We're live on ${PORT}!`));
