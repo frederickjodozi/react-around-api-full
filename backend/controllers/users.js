@@ -8,9 +8,7 @@ const {
   ERROR_CODE_500,
 } = require('../utils/errorStatusCodes');
 
-const getUser = (req, res) => {
-  const { id } = req.params;
-
+const getUserData = (id, res) => {
   User.findById(id)
     .orFail(() => {
       const error = new Error('No user found with specified Id');
@@ -27,6 +25,14 @@ const getUser = (req, res) => {
         res.status(ERROR_CODE_500).send({ Error: 'An error has occured on the server' });
       }
     });
+};
+
+const getUser = (req, res) => {
+  getUserData(req.params.id, res);
+};
+
+const getCurrentUser = (req, res) => {
+  getUserData(req.id, res);
 };
 
 const getUsers = (req, res) => {
@@ -153,6 +159,7 @@ const userLogin = (req, res) => {
 module.exports = {
   getUser,
   getUsers,
+  getCurrentUser,
   updateUser,
   updateAvatar,
   createUser,
