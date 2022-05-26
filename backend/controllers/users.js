@@ -32,7 +32,7 @@ const getUser = (req, res) => {
 };
 
 const getCurrentUser = (req, res) => {
-  getUserData(req.id, res);
+  getUserData(req.user._id, res);
 };
 
 const getUsers = (req, res) => {
