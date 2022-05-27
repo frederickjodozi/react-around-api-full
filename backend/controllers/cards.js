@@ -25,11 +25,19 @@ const createCard = (req, res) => {
 const deleteCard = (req, res) => {
   const { id } = req.params;
 
-  Card.findByIdAndDelete(id)
+  Card.findById(id)
     .orFail(() => {
       const error = new Error('No card found with specified Id');
       error.statusCode = 404;
       throw error;
+    })
+    .then((card) => {
+      if (!card.owner.equals(req.user._id)) {
+        const error = new Error('Cannot delete other user\'s cards');
+        error.statusCode = 404;
+        throw error;
+      }
+      return Card.findByIdAndDelete(card._id);
     })
     .then((data) => res.send(data))
     .catch((err) => {
