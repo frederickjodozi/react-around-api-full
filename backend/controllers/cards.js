@@ -1,57 +1,58 @@
 const Card = require('../models/card');
-const { ERROR_CODE_400, ERROR_CODE_404, ERROR_CODE_500 } = require('../utils/errorStatusCodes');
+const BadRequestError = require('../errors/bad-request-error');
+const NotFoundError = require('../errors/not-found-error');
+const ForbiddenError = require('../errors/forbidden-error');
 
-const getCards = (req, res) => {
+const getCards = (req, res, next) => {
   Card.find({})
+    .orFail(() => {
+      throw new NotFoundError('No cards found');
+    })
     .then((cards) => res.send(cards))
-    .catch(() => res.status(ERROR_CODE_500).send({ Error: 'An error has occured on the server' }));
+    .catch(next);
 };
 
-const createCard = (req, res) => {
+const createCard = (req, res, next) => {
   const { name, link } = req.body;
   const { _id } = req.user;
 
   Card.create({ name, link, owner: _id })
-    .then((card) => res.send(card))
+    .then((card) => res.status(201).send(card))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(ERROR_CODE_400).send({ Error: `${err.message}` });
+        next(new BadRequestError(`${err.name}: ${err.message}`));
       } else {
-        res.status(ERROR_CODE_500).send({ Error: 'An error has occured on the server' });
+        next(err);
       }
     });
 };
 
-const deleteCard = (req, res) => {
+const deleteCard = (req, res, next) => {
   const { id } = req.params;
 
   Card.findById(id)
     .orFail(() => {
-      const error = new Error('No card found with specified Id');
-      error.statusCode = 404;
-      throw error;
+      throw new NotFoundError('No card found with specified Id');
     })
+
     .then((card) => {
       if (!card.owner.equals(req.user._id)) {
-        const error = new Error('Cannot delete other user\'s cards');
-        error.statusCode = 404;
-        throw error;
+        throw new ForbiddenError('Cannot delete other user\'s cards');
       }
+
       return Card.findByIdAndDelete(card._id);
     })
-    .then((data) => res.send(data))
+    .then(res.status(204))
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(ERROR_CODE_400).send({ Error: `${err.message}` });
-      } else if (err.statusCode === 404) {
-        res.status(ERROR_CODE_404).send({ Error: `${err.message}` });
+        next(new BadRequestError(`${err.name}: ${err.message}`));
       } else {
-        res.status(ERROR_CODE_500).send({ Error: 'An error has occured on the server' });
+        next(err);
       }
     });
 };
 
-const likeCard = (req, res) => {
+const likeCard = (req, res, next) => {
   const { id } = req.params;
 
   Card.findByIdAndUpdate(
@@ -60,23 +61,19 @@ const likeCard = (req, res) => {
     { new: true },
   )
     .orFail(() => {
-      const error = new Error('No card found with specified Id');
-      error.statusCode = 404;
-      throw error;
+      throw new NotFoundError('No card found with specified Id');
     })
     .then((card) => res.send(card))
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(ERROR_CODE_400).send({ Error: `${err.message}` });
-      } else if (err.statusCode === 404) {
-        res.status(ERROR_CODE_404).send({ Error: `${err.message}` });
+        next(new BadRequestError(`${err.name}: ${err.message}`));
       } else {
-        res.status(ERROR_CODE_500).send({ Error: 'An error has occured on the server' });
+        next(err);
       }
     });
 };
 
-const dislikeCard = (req, res) => {
+const dislikeCard = (req, res, next) => {
   const { id } = req.params;
 
   Card.findByIdAndUpdate(
@@ -85,18 +82,14 @@ const dislikeCard = (req, res) => {
     { new: true },
   )
     .orFail(() => {
-      const error = new Error('No card found with specified Id');
-      error.statusCode = 404;
-      throw error;
+      throw new NotFoundError('No card found with specified Id');
     })
     .then((card) => res.send(card))
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(ERROR_CODE_400).send({ Error: `${err.message}` });
-      } else if (err.statusCode === 404) {
-        res.status(ERROR_CODE_404).send({ Error: `${err.message}` });
+        next(new BadRequestError(`${err.name}: ${err.message}`));
       } else {
-        res.status(ERROR_CODE_500).send({ Error: 'An error has occured on the server' });
+        next(err);
       }
     });
 };

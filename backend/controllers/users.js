@@ -1,47 +1,43 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
-const {
-  ERROR_CODE_400,
-  ERROR_CODE_401,
-  ERROR_CODE_404,
-  ERROR_CODE_500,
-} = require('../utils/errorStatusCodes');
+const NotFoundError = require('../errors/not-found-error');
+const BadRequestError = require('../errors/bad-request-error');
+const UnauthorizedError = require('../errors/unauthorized-error');
 
-const getUserData = (id, res) => {
+const getUserData = (id, res, next) => {
   User.findById(id)
     .orFail(() => {
-      const error = new Error('No user found with specified Id');
-      error.statusCode = 404;
-      throw error;
+      throw new NotFoundError('No user found with specified Id');
     })
     .then((user) => res.send(user))
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(ERROR_CODE_400).send({ Error: `${err.message}` });
-      } else if (err.statusCode === 404) {
-        res.status(ERROR_CODE_404).send({ Error: `${err.message}` });
+        next(new BadRequestError(`${`${err.name}: ${err.message}`}`));
       } else {
-        res.status(ERROR_CODE_500).send({ Error: 'An error has occured on the server' });
+        next(err);
       }
     });
 };
 
-const getUser = (req, res) => {
-  getUserData(req.params.id, res);
+const getUser = (req, res, next) => {
+  getUserData(req.params.id, res, next);
 };
 
-const getCurrentUser = (req, res) => {
-  getUserData(req.user._id, res);
+const getCurrentUser = (req, res, next) => {
+  getUserData(req.user._id, res, next);
 };
 
-const getUsers = (req, res) => {
+const getUsers = (req, res, next) => {
   User.find({})
+    .orFail(() => {
+      throw new NotFoundError('No users found');
+    })
     .then((users) => res.send(users))
-    .catch(() => res.status(ERROR_CODE_500).send({ Error: 'An error has occured on the server' }));
+    .catch(next);
 };
 
-const updateUser = (req, res) => {
+const updateUser = (req, res, next) => {
   const { _id } = req.user;
   const { name, about } = req.body;
 
@@ -51,25 +47,19 @@ const updateUser = (req, res) => {
     { runValidators: true, new: true },
   )
     .orFail(() => {
-      const error = new Error('No user found with specified Id');
-      error.statusCode = 404;
-      throw error;
+      throw new UnauthorizedError('Not authorized to update');
     })
     .then((data) => res.send(data))
     .catch((err) => {
-      if (err.name === 'CastError') {
-        res.status(ERROR_CODE_400).send({ Error: `${err.message}` });
-      } else if (err.name === 'ValidationError') {
-        res.status(ERROR_CODE_400).send({ Error: `${err.message}` });
-      } else if (err.statusCode === 404) {
-        res.status(ERROR_CODE_404).send({ Error: `${err.message}` });
+      if (err.name === ('CastError' || 'ValidationError')) {
+        next(new BadRequestError(`${`${err.name}: ${err.message}`}`));
       } else {
-        res.status(ERROR_CODE_500).send({ Error: 'An error has occured on the server' });
+        next(err);
       }
     });
 };
 
-const updateAvatar = (req, res) => {
+const updateAvatar = (req, res, next) => {
   const { _id } = req.user;
   const { avatar } = req.body;
 
@@ -79,25 +69,19 @@ const updateAvatar = (req, res) => {
     { runValidators: true, new: true },
   )
     .orFail(() => {
-      const error = new Error('No user found with specified Id');
-      error.statusCode = 404;
-      throw error;
+      throw new UnauthorizedError('Not authorized to update');
     })
     .then((data) => res.send(data))
     .catch((err) => {
-      if (err.name === 'CastError') {
-        res.status(ERROR_CODE_400).send({ Error: `${err.message}` });
-      } else if (err.name === 'ValidationError') {
-        res.status(ERROR_CODE_400).send({ Error: `${err.message}` });
-      } else if (err.statusCode === 404) {
-        res.status(ERROR_CODE_404).send({ Error: `${err.message}` });
+      if (err.name === ('CastError' || 'ValidationError')) {
+        next(new BadRequestError(`${`${err.name}: ${err.message}`}`));
       } else {
-        res.status(ERROR_CODE_500).send({ Error: 'An error has occured on the server' });
+        next(err);
       }
     });
 };
 
-const createUser = (req, res) => {
+const createUser = (req, res, next) => {
   const {
     email,
     password,
@@ -122,38 +106,37 @@ const createUser = (req, res) => {
           about: user.about,
           avatar: user.avatar,
           __v: user.__v,
-        }));
+        }))
+        .catch((err) => {
+          if (err.name === 'ValidationError') {
+            next(new BadRequestError(`${err.name}: ${err.message}`));
+          } else {
+            next(err);
+          }
+        });
     })
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        res.status(ERROR_CODE_400).send({ Error: `${err.message}` });
-      } else {
-        res.status(ERROR_CODE_500).send({ Error: 'An error has occured on the server' });
-      }
-    });
+    .catch(next(new BadRequestError('Password required')));
 };
 
-const userLogin = (req, res) => {
+const userLogin = (req, res, next) => {
   const { email, password } = req.body;
 
   User.findOne({ email }).select('+password')
     .then((user) => {
-      if (!user) {
-        return Promise.reject(new Error('Incorrect password or email'));
+      if ((!user || !req.body.password)) {
+        throw new UnauthorizedError('Incorrect Password or email');
       }
       return bcrypt.compare(password, user.password)
         .then((matched) => {
           if (!matched) {
-            return Promise.reject(new Error('Incorrect password or email'));
+            throw new UnauthorizedError('Incorrect password or email');
           }
           const token = jwt.sign({ _id: user._id }, 'secret', { expiresIn: '7d' });
 
           return res.send(token);
         });
     })
-    .catch((err) => {
-      res.status(ERROR_CODE_401).send({ Error: `${err.message}` });
-    });
+    .catch(next);
 };
 
 module.exports = {
