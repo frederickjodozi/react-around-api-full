@@ -1,5 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const { errors } = require('celebrate');
+const { validateUser, validateLogin } = require('./middlewares/validation');
 const routes = require('./routes/index');
 const { userLogin, createUser } = require('./controllers/users');
 
@@ -10,11 +12,13 @@ mongoose.connect('mongodb://localhost:27017/aroundb');
 
 app.use(express.json());
 
-app.post('/signin', userLogin);
+app.post('/signin', validateLogin, userLogin);
 
-app.post('/signup', createUser);
+app.post('/signup', validateUser, createUser);
 
 app.use(routes);
+
+app.use(errors());
 
 app.use((err, req, res, next) => {
   const { statusCode = 500, message } = err;
