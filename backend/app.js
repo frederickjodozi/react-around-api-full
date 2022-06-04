@@ -1,6 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const { errors } = require('celebrate');
+const { requestLogger, errorLogger } = require('./middlewares/logger');
 const { validateUser, validateLogin } = require('./middlewares/validation');
 const routes = require('./routes/index');
 const { userLogin, createUser } = require('./controllers/users');
@@ -10,6 +11,8 @@ const app = express();
 
 mongoose.connect('mongodb://localhost:27017/aroundb');
 
+app.use(requestLogger);
+
 app.use(express.json());
 
 app.post('/signin', validateLogin, userLogin);
@@ -17,6 +20,8 @@ app.post('/signin', validateLogin, userLogin);
 app.post('/signup', validateUser, createUser);
 
 app.use(routes);
+
+app.use(errorLogger);
 
 app.use(errors());
 
