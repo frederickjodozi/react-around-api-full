@@ -20,7 +20,7 @@ app.use(requestLogger);
 
 app.use(express.json());
 
-app.post('/signin', validateLogin, userLogin);
+app.post('/login', validateLogin, userLogin);
 
 app.post('/signup', validateUser, createUser);
 
