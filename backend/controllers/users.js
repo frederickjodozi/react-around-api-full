@@ -114,8 +114,7 @@ const createUser = (req, res, next) => {
             next(err);
           }
         });
-    })
-    .catch(next(new BadRequestError('Password required')));
+    });
 };
 
 const userLogin = (req, res, next) => {
