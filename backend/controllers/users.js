@@ -25,7 +25,20 @@ const getUser = (req, res, next) => {
 };
 
 const getCurrentUser = (req, res, next) => {
-  getUserData(req.user._id, res, next);
+  const { user } = req;
+
+  User.findById(user)
+    .orFail(() => {
+      throw new NotFoundError('No user found with specified Id');
+    })
+    .then((data) => res.send(data))
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        next(new BadRequestError(`${`${err.name}: ${err.message}`}`));
+      } else {
+        next(err);
+      }
+    });
 };
 
 const getUsers = (req, res, next) => {
@@ -38,11 +51,11 @@ const getUsers = (req, res, next) => {
 };
 
 const updateUser = (req, res, next) => {
-  const { _id } = req.user;
+  const { user } = req;
   const { name, about } = req.body;
 
   User.findByIdAndUpdate(
-    _id,
+    user,
     { $set: { name, about } },
     { runValidators: true, new: true },
   )
@@ -60,11 +73,11 @@ const updateUser = (req, res, next) => {
 };
 
 const updateAvatar = (req, res, next) => {
-  const { _id } = req.user;
+  const { user } = req;
   const { avatar } = req.body;
 
   User.findByIdAndUpdate(
-    _id,
+    user,
     { $set: { avatar } },
     { runValidators: true, new: true },
   )
@@ -131,8 +144,7 @@ const userLogin = (req, res, next) => {
             throw new UnauthorizedError('Incorrect password or email');
           }
           const token = jwt.sign({ _id: user._id }, 'secret', { expiresIn: '7d' });
-
-          return res.send(token);
+          return res.send({ token });
         });
     })
     .catch(next);
