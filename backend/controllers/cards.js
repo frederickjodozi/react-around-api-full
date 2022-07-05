@@ -14,9 +14,9 @@ const getCards = (req, res, next) => {
 
 const createCard = (req, res, next) => {
   const { name, link } = req.body;
-  const { _id } = req.user;
+  const { user } = req;
 
-  Card.create({ name, link, owner: _id })
+  Card.create({ name, link, owner: user })
     .then((card) => res.status(201).send(card))
     .catch((err) => {
       if (err.name === 'ValidationError') {
@@ -36,13 +36,12 @@ const deleteCard = (req, res, next) => {
     })
 
     .then((card) => {
-      if (!card.owner.equals(req.user._id)) {
+      if (!card.owner.equals(req.user)) {
         throw new ForbiddenError('Cannot delete other user\'s cards');
       }
-
       return Card.findByIdAndDelete(card._id);
     })
-    .then(res.status(204))
+    .then(res.status(204).send(''))
     .catch((err) => {
       if (err.name === 'CastError') {
         next(new BadRequestError(`${err.name}: ${err.message}`));
@@ -57,7 +56,7 @@ const likeCard = (req, res, next) => {
 
   Card.findByIdAndUpdate(
     id,
-    { $addToSet: { likes: req.user._id } },
+    { $addToSet: { likes: req.user } },
     { new: true },
   )
     .orFail(() => {
@@ -78,7 +77,7 @@ const dislikeCard = (req, res, next) => {
 
   Card.findByIdAndUpdate(
     id,
-    { $pull: { likes: req.user._id } },
+    { $pull: { likes: req.user } },
     { new: true },
   )
     .orFail(() => {
