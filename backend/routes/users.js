@@ -9,9 +9,9 @@ const {
   updateAvatar,
 } = require('../controllers/users');
 
+router.get('/me', getCurrentUser);
 router.get('/:id', getUser);
 router.get('/', getUsers);
-router.get('/me', getCurrentUser);
 router.patch('/me/avatar', validateAvatarUpdate, updateAvatar);
 router.patch('/me', validateUserUpdate, updateUser);
 
