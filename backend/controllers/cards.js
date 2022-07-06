@@ -19,7 +19,7 @@ const createCard = (req, res, next) => {
   Card.create({ name, link, owner: user })
     .then((card) => res.status(201).send(card))
     .catch((err) => {
-      if (err.name === 'ValidationError') {
+      if (err.name === 'CastError' || 'ValidationError') {
         next(new BadRequestError(`${err.name}: ${err.message}`));
       } else {
         next(err);

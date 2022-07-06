@@ -64,7 +64,7 @@ const updateUser = (req, res, next) => {
     })
     .then((data) => res.send(data))
     .catch((err) => {
-      if (err.name === ('CastError' || 'ValidationError')) {
+      if (err.name === 'CastError' || 'ValidationError') {
         next(new BadRequestError(`${`${err.name}: ${err.message}`}`));
       } else {
         next(err);
@@ -86,7 +86,7 @@ const updateAvatar = (req, res, next) => {
     })
     .then((data) => res.send(data))
     .catch((err) => {
-      if (err.name === ('CastError' || 'ValidationError')) {
+      if (err.name === 'CastError' || 'ValidationError') {
         next(new BadRequestError(`${`${err.name}: ${err.message}`}`));
       } else {
         next(err);
@@ -121,7 +121,7 @@ const createUser = (req, res, next) => {
           __v: user.__v,
         }))
         .catch((err) => {
-          if (err.name === 'ValidationError') {
+          if (err.name === 'CastError' || 'ValidationError') {
             next(new BadRequestError(`${err.name}: ${err.message}`));
           } else {
             next(err);
