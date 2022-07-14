@@ -5,6 +5,8 @@ const NotFoundError = require('../errors/not-found-error');
 const BadRequestError = require('../errors/bad-request-error');
 const UnauthorizedError = require('../errors/unauthorized-error');
 
+const { NODE_ENV, JWT_SECRET } = process.env;
+
 const getUserData = (id, res, next) => {
   User.findById(id)
     .orFail(() => {
@@ -143,7 +145,7 @@ const userLogin = (req, res, next) => {
           if (!matched) {
             throw new UnauthorizedError('Incorrect password or email');
           }
-          const token = jwt.sign({ _id: user._id }, 'secret', { expiresIn: '7d' });
+          const token = jwt.sign({ _id: user._id }, NODE_ENV === 'production' ? JWT_SECRET : 'secret', { expiresIn: '7d' });
           return res.send({ token });
         });
     })
