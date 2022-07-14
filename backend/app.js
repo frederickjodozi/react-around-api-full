@@ -7,7 +7,9 @@ const { validateUser, validateLogin } = require('./middlewares/validation');
 const routes = require('./routes/index');
 const { userLogin, createUser } = require('./controllers/users');
 
-const { PORT = 3000 } = process.env;
+require('dotenv').config();
+
+const { PORT = 3000, HOST = 'localhost' } = process.env;
 const app = express();
 
 mongoose.connect('mongodb://localhost:27017/aroundb');
@@ -41,4 +43,4 @@ app.use((err, req, res, next) => {
     });
 });
 
-app.listen(PORT, () => console.log(`We're live on ${PORT}!`));
+app.listen(PORT, HOST, () => console.log(`We're live on ${HOST}:${PORT}!`));
