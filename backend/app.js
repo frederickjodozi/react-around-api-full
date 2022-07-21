@@ -22,6 +22,12 @@ app.use(requestLogger);
 
 app.use(express.json());
 
+app.get('/crash-test', () => {
+  setTimeout(() => {
+    throw new Error('Server will crash now');
+  }, 0);
+});
+
 app.post('/login', validateLogin, userLogin);
 
 app.post('/signup', validateUser, createUser);
