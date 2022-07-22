@@ -1,5 +1,6 @@
 const { celebrate, Joi } = require('celebrate');
 const validator = require('validator');
+const { ObjectId } = require('mongoose').Types;
 
 const validateURL = (value, helpers) => {
   if (validator.isURL(value)) {
@@ -7,6 +8,23 @@ const validateURL = (value, helpers) => {
   }
   return helpers.error('string.uri');
 };
+
+const validateId = (value, helpers) => {
+  if (ObjectId.isValid(value)) {
+    return value;
+  }
+  return helpers.error('string.objectId');
+};
+
+const validateObjectId = celebrate({
+  params: Joi.object().keys({
+    id: Joi.string().required().custom(validateId)
+      .messages({
+        'string.objectId': 'Invalid Object Id',
+        'any.required': 'Id is required',
+      }),
+  }),
+});
 
 const validateCard = celebrate({
   body: Joi.object().keys({
@@ -91,6 +109,7 @@ const validateAvatarUpdate = celebrate({
 });
 
 module.exports = {
+  validateObjectId,
   validateCard,
   validateUser,
   validateLogin,
