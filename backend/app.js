@@ -8,7 +8,7 @@ const { requestLogger, errorLogger } = require('./middlewares/logger');
 const { validateUser, validateLogin } = require('./middlewares/validation');
 const routes = require('./routes/index');
 const { userLogin, createUser } = require('./controllers/users');
-const centralizedErrorHandler = require('./middlewares/centralized-error-handler');
+const errorHandler = require('./middlewares/errorHandler');
 
 require('dotenv').config();
 
@@ -45,6 +45,6 @@ app.use(errorLogger);
 
 app.use(errors());
 
-app.use(centralizedErrorHandler);
+app.use(errorHandler);
 
 app.listen(PORT, HOST, () => console.log(`We're live on ${HOST}:${PORT}!`));
