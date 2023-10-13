@@ -1,9 +1,10 @@
 {
   "name": "react-around-api-full",
   "version": "1.0.0",
-  "description": "Final project at Practicum",
-  "author": "Fred Jodozi",
   "license": "ISC",
+  "author": "Frederick Jodozi",
+  "description": "My final project with TripleTen: A Full-Stack Application hosted on a cloud server",
+  "homepage": "https://aroundtheusa.students.nomoreparties.sbs",
   "main": "app.js",
   "scripts": {
     "start": "node app.js",
@@ -31,13 +32,5 @@
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-plugin-import": "^2.25.4",
     "nodemon": "^2.0.15"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Fred776/around-express.git"
-  },
-  "homepage": "https://github.com/Fred776/around-express#readme",
-  "bugs": {
-    "url": "https://github.com/Fred776/around-express/issues"
   }
 }
