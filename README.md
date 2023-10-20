@@ -1,4 +1,4 @@
-# *react-around-api-full: My final project at Practicum!!!*
+# *react-around-api-full: My final project at TripleTen!*
 
 This project consists of my first Fullstack application. It uses a Build version from the react-around-auth project for it's Frontend and integrates it to a fully working Backend Api for user authorization and data collection. 
 
@@ -16,4 +16,4 @@ Here are the App's main features on the Backend.
 ## *Contributions*
 This project can be used by aspiring Web developers and more specifically people looking to learn about Backend development using Express.js. It can be cloned on a local machine for studying and/or editing, and relevant pull requests will be accepted!
 
-I am thankful for the help TripleTen provided me with to build this project! I am also very proud of having finished this project, as it marks completion of the curriculum!
+I am very proud of having finished this project, as it marks completion of the TripleTen Web Development curriculum. I am also thankful for the help TripleTen provided me with all throughout my learning journey!
